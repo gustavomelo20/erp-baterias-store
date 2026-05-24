@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
+    restart: unless-stopped
+
+volumes:
+  vendor_data:
