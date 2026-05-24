@@ -147,6 +147,9 @@
                 Usuário padrão: <strong>admin@example.com</strong><br>
                 Senha: <strong>password</strong>
             </p>
+            <a href="{{ route('empresa.create') }}" class="d-inline-block mt-3 text-decoration-none fw-semibold" style="color: var(--bp-navy);">
+                Criar conta da empresa
+            </a>
         </div>
     </div>
 

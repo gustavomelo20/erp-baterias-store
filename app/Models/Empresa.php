@@ -5,28 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['empresa_id', 'loja_id', 'nome', 'quantidade', 'preco_unitario', 'preco_custo'])]
-class Produto extends Model
+#[Fillable(['nome'])]
+class Empresa extends Model
 {
     use HasFactory;
 
     /**
-     * @return BelongsTo<Empresa, $this>
+     * @return HasMany<Loja, $this>
      */
-    public function empresa(): BelongsTo
+    public function lojas(): HasMany
     {
-        return $this->belongsTo(Empresa::class);
+        return $this->hasMany(Loja::class);
     }
 
     /**
-     * @return BelongsTo<Loja, $this>
+     * @return HasMany<User, $this>
      */
-    public function loja(): BelongsTo
+    public function users(): HasMany
     {
-        return $this->belongsTo(Loja::class);
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * @return HasMany<Produto, $this>
+     */
+    public function produtos(): HasMany
+    {
+        return $this->hasMany(Produto::class);
     }
 
     /**

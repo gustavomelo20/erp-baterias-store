@@ -1,14 +1,18 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmpresaCadastroController;
 use App\Http\Controllers\EstoqueVendaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+Route::get('/cadastro-empresa', [EmpresaCadastroController::class, 'create'])->name('empresa.create');
+Route::post('/cadastro-empresa', [EmpresaCadastroController::class, 'store'])->name('empresa.store');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/lojas/trocar', [AuthController::class, 'switchLoja'])->name('lojas.switch');
     Route::get('/', [EstoqueVendaController::class, 'index'])->name('welcome');
     Route::get('/painel', [EstoqueVendaController::class, 'dashboard'])->name('painel.index');
     Route::get('/dashboard', [EstoqueVendaController::class, 'dashboard'])->name('dashboard');

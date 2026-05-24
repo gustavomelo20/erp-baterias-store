@@ -117,7 +117,20 @@
 
 <header class="header">
     <span class="brand">Baterias Store</span>
+    @if ($tenantEmpresa && $tenantLojaAtual)
+        <span class="clock">{{ $tenantEmpresa->nome }} - {{ $tenantLojaAtual->nome }}</span>
+    @endif
     <span class="spacer"></span>
+    @if ($tenantLojas->count() > 1)
+        <form method="POST" action="{{ route('lojas.switch') }}" style="display:inline-flex;">
+            @csrf
+            <select name="loja_id" class="input" onchange="this.form.submit()" style="width: 180px; padding: .38rem .55rem; font-size: .8rem;">
+                @foreach ($tenantLojas as $loja)
+                    <option value="{{ $loja->id }}" @selected($tenantLojaAtual && $tenantLojaAtual->id === $loja->id)>{{ $loja->nome }}</option>
+                @endforeach
+            </select>
+        </form>
+    @endif
     <span class="clock" id="clock"></span>
     <a href="{{ route('estoque.index') }}" class="btn-exit">Estoque</a>
     <button class="btn-fullscreen" id="btn-fullscreen" title="Fullscreen">⛶</button>

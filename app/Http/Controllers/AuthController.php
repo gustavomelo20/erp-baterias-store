@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -13,7 +14,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -21,7 +22,33 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
+            if (!$user || !$user->empresa_id) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'email' => 'Seu usuario nao possui empresa vinculada.',
+                ])->onlyInput('email');
+            }
+
+            $lojaInicial = $user->lojas()
+                ->where('empresa_id', $user->empresa_id)
+                ->orderBy('nome')
+                ->first();
+
+            if (!$lojaInicial) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'email' => 'Seu usuario nao possui acesso a nenhuma loja.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
+            $request->session()->put('loja_id', $lojaInicial->id);
+
             return redirect()->intended(route('painel.index'));
         }
 
@@ -30,7 +57,32 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    public function logout(Request $request)
+    public function switchLoja(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $dados = $request->validate([
+            'loja_id' => ['required', 'integer'],
+        ]);
+
+        $loja = $user->lojas()
+            ->where('empresa_id', $user->empresa_id)
+            ->where('lojas.id', $dados['loja_id'])
+            ->first();
+
+        if (!$loja) {
+            return back()->withErrors([
+                'loja_id' => 'Loja invalida para este usuario.',
+            ]);
+        }
+
+        $request->session()->put('loja_id', (int) $loja->id);
+
+        return back()->with('success', 'Loja ativa alterada com sucesso.');
+    }
+
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();

@@ -7,26 +7,42 @@ use App\Models\Venda;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View as ViewContract;
 use Illuminate\View\View;
 
 class EstoqueVendaController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $produtos = Produto::query()->orderBy('nome')->get();
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
+        $produtos = Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
+            ->orderBy('nome')
+            ->get();
 
         return view('welcome', [
             'produtos' => $produtos,
         ]);
     }
 
-    public function estoque(): View
+    public function estoque(Request $request): View
     {
-        $produtos = Produto::query()->orderBy('nome')->get();
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
+        $produtos = Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
+            ->orderBy('nome')
+            ->get();
 
         $vendasRecentes = Venda::query()
             ->with('produto')
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
             ->latest()
             ->limit(10)
             ->get();
@@ -39,6 +55,8 @@ class EstoqueVendaController extends Controller
 
     public function dashboard(Request $request): View
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $filtros = $request->validate([
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
@@ -49,6 +67,8 @@ class EstoqueVendaController extends Controller
 
         $vendasPeriodo = Venda::query()
             ->with('produto')
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
             ->whereDate('data_venda', '>=', $dataInicio)
             ->whereDate('data_venda', '<=', $dataFim)
             ->latest()
@@ -68,6 +88,8 @@ class EstoqueVendaController extends Controller
 
         $ultimasVendas = Venda::query()
             ->with('produto')
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
             ->whereDate('data_venda', '>=', $dataInicio)
             ->whereDate('data_venda', '<=', $dataFim)
             ->latest()
@@ -75,6 +97,8 @@ class EstoqueVendaController extends Controller
             ->get();
 
         $produtosEstoque = Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
             ->orderBy('nome')
             ->get();
 
@@ -92,20 +116,40 @@ class EstoqueVendaController extends Controller
 
     public function storeProduto(Request $request): RedirectResponse
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $dados = $request->validate([
-            'nome' => ['required', 'string', 'max:255', 'unique:produtos,nome'],
+            'nome' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('produtos', 'nome')->where(fn ($query) => $query
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
+                ),
+            ],
             'quantidade' => ['required', 'integer', 'min:0'],
             'preco_custo' => ['required', 'numeric', 'min:0'],
             'preco_unitario' => ['required', 'numeric', 'min:0'],
         ]);
 
-        Produto::query()->create($dados);
+        Produto::query()->create([
+            ...$dados,
+            'empresa_id' => $empresaId,
+            'loja_id' => $lojaId,
+        ]);
 
         return back()->with('success', 'Produto cadastrado no estoque com sucesso.');
     }
 
     public function updatePrecoVenda(Request $request, Produto $produto): RedirectResponse
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
+        if ((int) $produto->empresa_id !== $empresaId || (int) $produto->loja_id !== $lojaId) {
+            abort(404);
+        }
+
         $dados = $request->validate([
             'preco_unitario' => ['required', 'numeric', 'min:0'],
         ]);
@@ -119,14 +163,24 @@ class EstoqueVendaController extends Controller
 
     public function storeEntradaEstoque(Request $request): RedirectResponse
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $dados = $request->validate([
-            'produto_id' => ['required', 'exists:produtos,id'],
+            'produto_id' => [
+                'required',
+                Rule::exists('produtos', 'id')->where(fn ($query) => $query
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
+                ),
+            ],
             'quantidade' => ['required', 'integer', 'min:1'],
             'preco_custo' => ['required', 'numeric', 'min:0'],
         ]);
 
-        DB::transaction(function () use ($dados): void {
+        DB::transaction(function () use ($dados, $empresaId, $lojaId): void {
             $produto = Produto::query()
+                ->where('empresa_id', $empresaId)
+                ->where('loja_id', $lojaId)
                 ->lockForUpdate()
                 ->findOrFail($dados['produto_id']);
 
@@ -152,11 +206,25 @@ class EstoqueVendaController extends Controller
 
     public function storeVenda(Request $request): RedirectResponse
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $dados = $request->validate([
             'items' => ['sometimes', 'array', 'min:1'],
-            'items.*.produto_id' => ['required_with:items', 'exists:produtos,id'],
+            'items.*.produto_id' => [
+                'required_with:items',
+                Rule::exists('produtos', 'id')->where(fn ($query) => $query
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
+                ),
+            ],
             'items.*.quantidade' => ['required_with:items', 'integer', 'min:1'],
-            'produto_id' => ['required_without:items', 'exists:produtos,id'],
+            'produto_id' => [
+                'required_without:items',
+                Rule::exists('produtos', 'id')->where(fn ($query) => $query
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
+                ),
+            ],
             'quantidade' => ['required_without:items', 'integer', 'min:1'],
             'desconto' => ['nullable', 'numeric', 'min:0'],
         ]);
@@ -180,12 +248,14 @@ class EstoqueVendaController extends Controller
         $descontoPedido = round((float) ($dados['desconto'] ?? 0), 2);
         $dataVenda = now()->toDateString();
 
-        DB::transaction(function () use ($itens, $descontoPedido, $dataVenda, $erroEstoqueCampo): void {
+        DB::transaction(function () use ($itens, $descontoPedido, $dataVenda, $erroEstoqueCampo, $empresaId, $lojaId): void {
             $linhas = collect();
             $subtotalPedido = 0.0;
 
             foreach ($itens as $item) {
                 $produto = Produto::query()
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
                     ->lockForUpdate()
                     ->findOrFail($item['produto_id']);
 
@@ -232,6 +302,8 @@ class EstoqueVendaController extends Controller
                 }
 
                 Venda::query()->create([
+                    'empresa_id' => $empresaId,
+                    'loja_id' => $lojaId,
                     'produto_id' => $produto->id,
                     'quantidade' => $linha['quantidade'],
                     'preco_unitario' => $linha['preco_unitario'],
@@ -243,18 +315,6 @@ class EstoqueVendaController extends Controller
         });
 
         return back()->with('success', 'Venda registrada e estoque atualizado.');
-    }
-
-    /**
-     * @return \Illuminate\Support\Collection<int, Venda>
-     */
-    private function vendasDeHoje()
-    {
-        return Venda::query()
-            ->with('produto')
-            ->whereDate('data_venda', now()->toDateString())
-            ->latest()
-            ->get();
     }
 
     public function checkoutVenda(Request $request): RedirectResponse
@@ -275,14 +335,51 @@ class EstoqueVendaController extends Controller
         return redirect()->route('vendas.pagamento');
     }
 
-    public function showPagamento(): View
+    public function showPagamento(Request $request): RedirectResponse|ViewContract
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $items = session('checkout_items', []);
-        $desconto = session('checkout_desconto', 0);
+        $desconto = (float) session('checkout_desconto', 0);
 
         if (empty($items)) {
             return redirect()->route('welcome');
         }
+
+        $produtos = Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
+            ->whereIn('id', collect($items)->pluck('produto_id')->map(fn ($id) => (int) $id)->all())
+            ->get()
+            ->keyBy('id');
+
+        $itensDetalhados = collect($items)
+            ->map(function (array $item) use ($produtos): ?array {
+                $produto = $produtos->get((int) ($item['produto_id'] ?? 0));
+                if (!$produto) {
+                    return null;
+                }
+
+                $quantidade = max(1, (int) ($item['quantidade'] ?? 1));
+                $precoUnitario = (float) $produto->preco_unitario;
+
+                return [
+                    'produto_id' => (int) $produto->id,
+                    'nome' => $produto->nome,
+                    'quantidade' => $quantidade,
+                    'preco_unitario' => $precoUnitario,
+                    'subtotal' => round($precoUnitario * $quantidade, 2),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        if ($itensDetalhados->isEmpty()) {
+            return redirect()->route('welcome')->with('error', 'Nao foi possivel carregar os itens da venda.');
+        }
+
+        $subtotal = round((float) $itensDetalhados->sum('subtotal'), 2);
+        $total = round(max($subtotal - $desconto, 0), 2);
 
         $formasPagamento = [
             'dinheiro' => 'Dinheiro',
@@ -292,7 +389,9 @@ class EstoqueVendaController extends Controller
         ];
 
         return view('vendas.pagamento', [
-            'items' => $items,
+            'items' => $itensDetalhados,
+            'subtotal' => $subtotal,
+            'total' => $total,
             'desconto' => $desconto,
             'formasPagamento' => $formasPagamento,
         ]);
@@ -300,6 +399,8 @@ class EstoqueVendaController extends Controller
 
     public function confirmarVenda(Request $request): RedirectResponse
     {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
         $dados = $request->validate([
             'forma_pagamento' => ['required', 'in:dinheiro,credito,debito,pix'],
             'email_cliente' => ['nullable', 'email'],
@@ -327,12 +428,14 @@ class EstoqueVendaController extends Controller
         $descontoPedido = round((float) $desconto, 2);
         $dataVenda = now()->toDateString();
 
-        DB::transaction(function () use ($itens, $descontoPedido, $dataVenda): void {
+        DB::transaction(function () use ($itens, $descontoPedido, $dataVenda, $empresaId, $lojaId): void {
             $linhas = collect();
             $subtotalPedido = 0.0;
 
             foreach ($itens as $item) {
                 $produto = Produto::query()
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
                     ->lockForUpdate()
                     ->findOrFail($item['produto_id']);
 
@@ -379,6 +482,8 @@ class EstoqueVendaController extends Controller
                 }
 
                 Venda::query()->create([
+                    'empresa_id' => $empresaId,
+                    'loja_id' => $lojaId,
                     'produto_id' => $produto->id,
                     'quantidade' => $linha['quantidade'],
                     'preco_unitario' => $linha['preco_unitario'],
@@ -392,5 +497,19 @@ class EstoqueVendaController extends Controller
         $request->session()->forget(['checkout_items', 'checkout_desconto']);
 
         return redirect()->route('welcome')->with('success', 'Venda registrada com sucesso!');
+    }
+
+    /**
+     * @return array{0:int,1:int}
+     */
+    private function tenantIds(Request $request): array
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        return [
+            (int) $user->empresa_id,
+            (int) $request->session()->get('loja_id'),
+        ];
     }
 }

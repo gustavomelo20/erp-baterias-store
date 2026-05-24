@@ -75,26 +75,11 @@
     <!-- RESUMO DA VENDA -->
     <div class="aside">
         <div class="aside-title">Itens da Venda</div>
-        @php
-            $subtotal = 0;
-            $formasPagamentoMap = $formasPagamento;
-            foreach ($items as $item) {
-                $produto = \App\Models\Produto::find($item['produto_id']);
-                if ($produto) {
-                    $subtotal += $produto->preco_unitario * $item['quantidade'];
-                }
-            }
-        @endphp
         @foreach ($items as $item)
-            @php
-                $produto = \App\Models\Produto::find($item['produto_id']);
-                if (!$produto) continue;
-                $total = $produto->preco_unitario * $item['quantidade'];
-            @endphp
             <div class="aside-item">
-                <div class="aside-item-name">{{ $produto->nome }}</div>
-                <div class="aside-item-qty">{{ $item['quantidade'] }}x R$ {{ number_format($produto->preco_unitario, 2, ',', '.') }}</div>
-                <div class="aside-item-price">R$ {{ number_format($total, 2, ',', '.') }}</div>
+                <div class="aside-item-name">{{ $item['nome'] }}</div>
+                <div class="aside-item-qty">{{ $item['quantidade'] }}x R$ {{ number_format($item['preco_unitario'], 2, ',', '.') }}</div>
+                <div class="aside-item-price">R$ {{ number_format($item['subtotal'], 2, ',', '.') }}</div>
             </div>
         @endforeach
         
@@ -104,7 +89,7 @@
             <div class="summary-div"></div>
             <div class="summary-total">
                 <span class="summary-label">Total</span>
-                <span class="summary-value">R$ {{ number_format(max($subtotal - $desconto, 0), 2, ',', '.') }}</span>
+                <span class="summary-value">R$ {{ number_format($total, 2, ',', '.') }}</span>
             </div>
         </div>
     </div>
