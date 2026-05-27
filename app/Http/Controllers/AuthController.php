@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -64,7 +65,14 @@ class AuthController extends Controller
 
         $dados = $request->validate([
             'loja_id' => ['required', 'integer'],
+            'senha_loja' => ['nullable', 'string'],
         ]);
+
+        if ($user->troca_loja_senha && !Hash::check((string) ($dados['senha_loja'] ?? ''), $user->troca_loja_senha)) {
+            return back()->withErrors([
+                'senha_loja' => 'Senha de seguranca invalida para trocar de loja.',
+            ]);
+        }
 
         $loja = $user->lojas()
             ->where('empresa_id', $user->empresa_id)

@@ -122,9 +122,9 @@
     @endif
     <span class="spacer"></span>
     @if ($tenantLojas->count() > 1)
-        <form method="POST" action="{{ route('lojas.switch') }}" style="display:inline-flex;">
+        <form method="POST" action="{{ route('lojas.switch') }}" style="display:inline-flex;" class="js-loja-switch-form" data-require-password="{{ auth()->user()?->troca_loja_senha ? '1' : '0' }}">
             @csrf
-            <select name="loja_id" class="input" onchange="this.form.submit()" style="width: 180px; padding: .38rem .55rem; font-size: .8rem;">
+            <select name="loja_id" data-current-loja-id="{{ $tenantLojaAtual?->id }}" class="input" onchange="window.handleLojaSwitchChange && window.handleLojaSwitchChange(this)" style="width: 180px; padding: .38rem .55rem; font-size: .8rem;">
                 @foreach ($tenantLojas as $loja)
                     <option value="{{ $loja->id }}" @selected($tenantLojaAtual && $tenantLojaAtual->id === $loja->id)>{{ $loja->nome }}</option>
                 @endforeach
@@ -205,8 +205,101 @@
     </div>
 </div>
 
+<div id="modalSenhaLoja" style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, .55); z-index: 1100; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="width: 100%; max-width: 420px; background: #fff; border-radius: .95rem; padding: 1.1rem; box-shadow: 0 18px 45px rgba(15, 23, 42, .25);">
+        <h3 style="margin: 0 0 .45rem; font-size: 1.08rem; color: #0f172a;">Confirmar troca de loja</h3>
+        <p style="margin: 0 0 .8rem; color: #64748b; font-size: .9rem;">Digite a senha de segurança para continuar.</p>
+        <input id="inputSenhaLoja" type="password" placeholder="Senha de segurança" style="width: 100%; border: 1px solid #cbd5e1; border-radius: .65rem; padding: .62rem .7rem; margin-bottom: .8rem;">
+        <div style="display: flex; justify-content: flex-end; gap: .55rem;">
+            <button type="button" id="btnCancelarSenhaLoja" style="border: 1px solid #cbd5e1; background: #fff; border-radius: .6rem; padding: .52rem .75rem; cursor: pointer;">Cancelar</button>
+            <button type="button" id="btnConfirmarSenhaLoja" style="border: none; background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #111827; border-radius: .6rem; padding: .52rem .75rem; font-weight: 700; cursor: pointer;">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <script>
 (function(){
+    const modalSenhaLoja = document.getElementById('modalSenhaLoja');
+    const inputSenhaLoja = document.getElementById('inputSenhaLoja');
+    const btnCancelarSenhaLoja = document.getElementById('btnCancelarSenhaLoja');
+    const btnConfirmarSenhaLoja = document.getElementById('btnConfirmarSenhaLoja');
+    let formPendente = null;
+    let selectPendente = null;
+    let lojaAnterior = null;
+
+    function fecharModalLoja() {
+        if (!modalSenhaLoja) {
+            return;
+        }
+        modalSenhaLoja.style.display = 'none';
+        if (inputSenhaLoja) {
+            inputSenhaLoja.value = '';
+        }
+        if (selectPendente && lojaAnterior) {
+            selectPendente.value = lojaAnterior;
+        }
+        formPendente = null;
+        selectPendente = null;
+        lojaAnterior = null;
+    }
+
+    window.handleLojaSwitchChange = function (select) {
+        const form = select.form;
+        if (!form) {
+            return;
+        }
+
+        const requirePassword = form.dataset.requirePassword === '1';
+        const atual = String(select.dataset.currentLojaId || '');
+        const escolhida = String(select.value || '');
+
+        if (escolhida === atual) {
+            return;
+        }
+
+        if (!requirePassword) {
+            form.submit();
+            return;
+        }
+
+        formPendente = form;
+        selectPendente = select;
+        lojaAnterior = atual;
+        if (modalSenhaLoja) {
+            modalSenhaLoja.style.display = 'flex';
+        }
+        if (inputSenhaLoja) {
+            setTimeout(() => inputSenhaLoja.focus(), 30);
+        }
+    };
+
+    if (btnCancelarSenhaLoja) {
+        btnCancelarSenhaLoja.addEventListener('click', fecharModalLoja);
+    }
+
+    if (modalSenhaLoja) {
+        modalSenhaLoja.addEventListener('click', (event) => {
+            if (event.target === modalSenhaLoja) {
+                fecharModalLoja();
+            }
+        });
+    }
+
+    if (btnConfirmarSenhaLoja) {
+        btnConfirmarSenhaLoja.addEventListener('click', () => {
+            if (!formPendente || !inputSenhaLoja) {
+                return;
+            }
+
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'senha_loja';
+            hidden.value = inputSenhaLoja.value;
+            formPendente.appendChild(hidden);
+            formPendente.submit();
+        });
+    }
+
     const clock=document.getElementById('clock');
     function tick(){const d=new Date();clock.textContent=d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR');}
     tick();setInterval(tick,1000);

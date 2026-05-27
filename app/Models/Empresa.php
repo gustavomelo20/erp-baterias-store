@@ -7,7 +7,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['nome'])]
+#[Fillable([
+    'nome',
+    'razao_social',
+    'nome_fantasia',
+    'cnpj',
+    'inscricao_estadual',
+    'inscricao_municipal',
+    'regime_tributario',
+    'cnae_principal',
+    'email_fiscal',
+    'telefone',
+    'cep',
+    'logradouro',
+    'numero',
+    'complemento',
+    'bairro',
+    'cidade',
+    'uf',
+    'codigo_municipio_ibge',
+])]
 class Empresa extends Model
 {
     use HasFactory;
