@@ -122,7 +122,7 @@
         .btn-filter-light { background: #e5e7eb; color: #111827; }
 
         /* CARDS */
-        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card {
             background: var(--white);
             border-radius: .8rem;
