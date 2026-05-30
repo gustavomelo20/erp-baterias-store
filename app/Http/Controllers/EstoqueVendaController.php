@@ -397,6 +397,28 @@ class EstoqueVendaController extends Controller
         ]);
     }
 
+    public function showRecibo(Request $request): RedirectResponse|ViewContract
+    {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
+        $recibo = session('recibo_venda');
+
+        if (empty($recibo)) {
+            return redirect()->route('welcome');
+        }
+
+        $empresa = \App\Models\Empresa::find($empresaId);
+        $loja = \App\Models\Loja::find($lojaId);
+
+        $request->session()->forget('recibo_venda');
+
+        return view('vendas.recibo', [
+            'recibo' => $recibo,
+            'empresa' => $empresa,
+            'loja' => $loja,
+        ]);
+    }
+
     public function confirmarVenda(Request $request): RedirectResponse
     {
         [$empresaId, $lojaId] = $this->tenantIds($request);
@@ -494,9 +516,58 @@ class EstoqueVendaController extends Controller
             }
         });
 
-        $request->session()->forget(['checkout_items', 'checkout_desconto']);
+        // Monta dados do recibo para exibição/impressão
+        $itensBrutos = collect($items);
+        $produtosRecibo = \App\Models\Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
+            ->whereIn('id', $itensBrutos->pluck('produto_id')->map(fn ($id) => (int) $id)->all())
+            ->get()
+            ->keyBy('id');
 
-        return redirect()->route('welcome')->with('success', 'Venda registrada com sucesso!');
+        $itensRecibo = $itensBrutos
+            ->groupBy('produto_id')
+            ->map(function ($grupo, $produtoId) use ($produtosRecibo): ?array {
+                $produto = $produtosRecibo->get((int) $produtoId);
+                if (!$produto) {
+                    return null;
+                }
+                $quantidade = (int) collect($grupo)->sum('quantidade');
+                $precoUnitario = (float) $produto->preco_unitario;
+                return [
+                    'nome' => $produto->nome,
+                    'quantidade' => $quantidade,
+                    'preco_unitario' => $precoUnitario,
+                    'subtotal' => round($precoUnitario * $quantidade, 2),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+
+        $subtotalRecibo = round(collect($itensRecibo)->sum('subtotal'), 2);
+        $descontoPedido = round((float) $desconto, 2);
+        $totalRecibo = round(max($subtotalRecibo - $descontoPedido, 0), 2);
+
+        $formasPagamento = [
+            'dinheiro' => 'Dinheiro',
+            'credito' => 'Cartão Crédito',
+            'debito' => 'Cartão Débito',
+            'pix' => 'PIX',
+        ];
+
+        $request->session()->forget(['checkout_items', 'checkout_desconto']);
+        $request->session()->put('recibo_venda', [
+            'itens' => $itensRecibo,
+            'subtotal' => $subtotalRecibo,
+            'desconto' => $descontoPedido,
+            'total' => $totalRecibo,
+            'forma_pagamento' => $formasPagamento[$dados['forma_pagamento']] ?? $dados['forma_pagamento'],
+            'email_cliente' => $dados['email_cliente'] ?? null,
+            'data_hora' => now()->format('d/m/Y H:i:s'),
+        ]);
+
+        return redirect()->route('vendas.recibo');
     }
 
     /**

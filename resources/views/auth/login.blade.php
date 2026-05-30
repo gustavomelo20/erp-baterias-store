@@ -143,10 +143,6 @@
         </form>
 
         <div class="mt-4 pt-3 border-top text-center">
-            <p class="text-secondary mb-0" style="font-size: 0.9rem;">
-                Usuário padrão: <strong>admin@example.com</strong><br>
-                Senha: <strong>password</strong>
-            </p>
             <a href="{{ route('empresa.create') }}" class="d-inline-block mt-3 text-decoration-none fw-semibold" style="color: var(--bp-navy);">
                 Criar conta da empresa
             </a>

@@ -171,6 +171,20 @@
         gap: .45rem;
     }
 
+    .bp-nav-store-switch select {
+        min-height: 44px;
+        border-radius: .85rem;
+        padding: .7rem .9rem;
+        width: 100%;
+        min-width: 0;
+        background: #111827;
+        border: 1px solid #374151;
+        color: #f8fafc;
+        font-family: inherit;
+        font-size: .9rem;
+        appearance: auto;
+    }
+
     .bp-nav-store-switch .form-select {
         min-height: 44px;
         border-radius: .85rem;
@@ -182,77 +196,154 @@
         margin: 0;
     }
 
+    /* ── Mobile hamburger ── */
+    .bp-mobile-bar {
+        display: none;
+    }
+
+    .bp-drawer-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.55);
+        z-index: 1025;
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        transition: opacity .25s ease;
+    }
+
+    .bp-drawer-backdrop.open {
+        opacity: 1;
+    }
+
     @media (max-width: 960px) {
         body {
             padding-left: 0 !important;
+            padding-top: 60px !important;
         }
 
-        .bp-topbar {
-            position: static;
-            width: 100%;
-            height: auto;
-            box-shadow: 0 14px 32px rgba(2, 6, 23, 0.14);
-            border-right: none;
+        /* Mobile top bar */
+        .bp-mobile-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 1035;
+            background: linear-gradient(90deg, #0f172a 0%, #1f2937 100%);
             border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 4px 16px rgba(2, 6, 23, 0.22);
+            padding: 0 1rem;
+            gap: .75rem;
         }
 
-        .bp-nav-wrap {
-            padding: 1rem .75rem;
-        }
-
-        .bp-nav {
-            min-height: auto;
-        }
-
-        .bp-nav-actions {
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-
-        .bp-nav-menu {
-            margin: 0;
-        }
-
-        .bp-nav-link,
-        .bp-nav-logout {
-            width: 100%;
+        .bp-mobile-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            flex: 1;
             min-width: 0;
-            justify-content: flex-start;
         }
 
-        .bp-nav-footer {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
+        .bp-mobile-eyebrow {
+            color: #fbbf24;
+            font-size: .65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            line-height: 1;
+        }
+
+        .bp-mobile-title {
+            color: #f8fafc;
+            font-size: 1rem;
+            font-weight: 800;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bp-hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: .65rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .15s;
+        }
+
+        .bp-hamburger:hover {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        .bp-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            transition: transform .22s ease, opacity .22s ease;
+            transform-origin: center;
+        }
+
+        .bp-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .bp-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .bp-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Sidebar becomes off-canvas drawer */
+        .bp-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            transform: translateX(-100%);
+            transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+            z-index: 1030;
+        }
+
+        .bp-topbar.open {
+            transform: translateX(0);
+        }
+
+        .bp-drawer-backdrop {
+            display: block;
         }
 
         .bp-nav-spacer {
             display: none;
         }
     }
-
-    @media (max-width: 640px) {
-        .bp-nav-wrap {
-            padding: .9rem;
-        }
-
-        .bp-nav-link,
-        .bp-nav-logout,
-        .js-loja-switch-form {
-            width: 100%;
-        }
-
-        .bp-nav-actions {
-            flex-direction: column;
-        }
-
-        .bp-nav-footer {
-            width: 100%;
-        }
-    }
 </style>
 
-<div class="bp-topbar">
+{{-- Mobile top bar --}}
+<div class="bp-mobile-bar">
+    <div class="bp-mobile-brand">
+        <span class="bp-mobile-title">{{ $title }}</span>
+    </div>
+    <button type="button" class="bp-hamburger" id="bp-hamburger-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="bp-sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+</div>
+
+{{-- Backdrop --}}
+<div class="bp-drawer-backdrop" id="bp-drawer-backdrop"></div>
+
+<div class="bp-topbar" id="bp-sidebar">
     <div class="bp-nav-wrap">
         <div class="bp-nav">
             <div class="bp-nav-brand">
@@ -283,13 +374,11 @@
                 @if ($tenantLojas->count() > 1)
                     <div class="bp-nav-store-switch">
                         <p class="bp-nav-section-title">Loja ativa</p>
-                        <form method="POST" action="{{ route('lojas.switch') }}" style="display:block;" class="js-loja-switch-form" data-require-password="{{ auth()->user()?->troca_loja_senha ? '1' : '0' }}">
+                        <form method="POST" action="{{ route('lojas.switch') }}" style="display:block;" id="js-loja-switch-form">
                             @csrf
                             <select
                                 name="loja_id"
-                                data-current-loja-id="{{ $tenantLojaAtual?->id }}"
-                                class="form-select form-select-sm"
-                                onchange="window.handleLojaSwitchChange && window.handleLojaSwitchChange(this)"
+                                onchange="this.form.submit()"
                                 style="width: 100%; min-width: 0; background: #111827; border-color: #374151; color: #f8fafc;"
                             >
                                 @foreach ($tenantLojas as $loja)
@@ -311,87 +400,37 @@
     </div>
 </div>
 
-<div id="modalSenhaLoja" style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, .55); z-index: 1100; align-items: center; justify-content: center; padding: 1rem;">
-    <div style="width: 100%; max-width: 420px; background: #fff; border-radius: .95rem; padding: 1.1rem; box-shadow: 0 18px 45px rgba(15, 23, 42, .25);">
-        <h3 style="margin: 0 0 .45rem; font-size: 1.08rem; color: #0f172a;">Confirmar troca de loja</h3>
-        <p style="margin: 0 0 .8rem; color: #64748b; font-size: .9rem;">Digite a senha de segurança para continuar.</p>
-        <input id="inputSenhaLoja" type="password" placeholder="Senha de segurança" style="width: 100%; border: 1px solid #cbd5e1; border-radius: .65rem; padding: .62rem .7rem; margin-bottom: .8rem;">
-        <div style="display: flex; justify-content: flex-end; gap: .55rem;">
-            <button type="button" id="btnCancelarSenhaLoja" style="border: 1px solid #cbd5e1; background: #fff; border-radius: .6rem; padding: .52rem .75rem; cursor: pointer;">Cancelar</button>
-            <button type="button" id="btnConfirmarSenhaLoja" style="border: none; background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #111827; border-radius: .6rem; padding: .52rem .75rem; font-weight: 700; cursor: pointer;">Confirmar</button>
-        </div>
-    </div>
-</div>
-
 <script>
 (() => {
-    const modal = document.getElementById('modalSenhaLoja');
-    const inputSenha = document.getElementById('inputSenhaLoja');
-    const btnCancelar = document.getElementById('btnCancelarSenhaLoja');
-    const btnConfirmar = document.getElementById('btnConfirmarSenhaLoja');
-    if (!modal || !inputSenha || !btnCancelar || !btnConfirmar) {
-        return;
+    const btn = document.getElementById('bp-hamburger-btn');
+    const sidebar = document.getElementById('bp-sidebar');
+    const backdrop = document.getElementById('bp-drawer-backdrop');
+    if (!btn || !sidebar || !backdrop) return;
+
+    function openMenu() {
+        sidebar.classList.add('open');
+        backdrop.classList.add('open');
+        btn.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
     }
 
-    let formPendente = null;
-    let selectPendente = null;
-    let lojaAnterior = null;
-
-    function fecharModal() {
-        modal.style.display = 'none';
-        inputSenha.value = '';
-        if (selectPendente && lojaAnterior) {
-            selectPendente.value = lojaAnterior;
-        }
-        formPendente = null;
-        selectPendente = null;
-        lojaAnterior = null;
+    function closeMenu() {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
     }
 
-    window.handleLojaSwitchChange = function (select) {
-        const form = select.form;
-        if (!form) {
-            return;
-        }
-
-        const requirePassword = form.dataset.requirePassword === '1';
-        const atual = String(select.dataset.currentLojaId || '');
-        const escolhida = String(select.value || '');
-
-        if (escolhida === atual) {
-            return;
-        }
-
-        if (!requirePassword) {
-            form.submit();
-            return;
-        }
-
-        formPendente = form;
-        selectPendente = select;
-        lojaAnterior = atual;
-        modal.style.display = 'flex';
-        setTimeout(() => inputSenha.focus(), 30);
-    };
-
-    btnCancelar.addEventListener('click', fecharModal);
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            fecharModal();
-        }
+    btn.addEventListener('click', () => {
+        sidebar.classList.contains('open') ? closeMenu() : openMenu();
     });
 
-    btnConfirmar.addEventListener('click', () => {
-        if (!formPendente) {
-            return;
-        }
+    backdrop.addEventListener('click', closeMenu);
 
-        const hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.name = 'senha_loja';
-        hidden.value = inputSenha.value;
-        formPendente.appendChild(hidden);
-        formPendente.submit();
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
     });
 })();
 </script>

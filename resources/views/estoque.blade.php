@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Estoque | Baterias ERP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --bp-navy: #081c33;
@@ -24,20 +25,42 @@
                 radial-gradient(circle at left center, rgba(255, 122, 0, 0.08), transparent 30%),
                 linear-gradient(180deg, #fbfcfe 0%, var(--bp-bg) 100%);
             color: var(--bp-text);
-            padding-top: 88px;
         }
 
         .bp-shell { max-width: 1280px; }
-        .bp-card { border: 1px solid rgba(8, 28, 51, 0.08); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06); border-radius: 1.25rem; overflow: hidden; }
-        .bp-card .card-header { background: linear-gradient(90deg, rgba(8, 28, 51, 0.05), rgba(242, 195, 0, 0.10)); border-bottom: 1px solid rgba(8, 28, 51, 0.08); }
-        .bp-label { color: var(--bp-navy); font-weight: 700; font-size: .9rem; margin-bottom: .35rem; }
-        .bp-control { border-radius: .95rem; border: 1px solid rgba(8, 28, 51, 0.16); padding: .9rem 1rem; }
-        .bp-control:focus { border-color: var(--bp-gold); box-shadow: 0 0 0 .25rem rgba(242, 195, 0, 0.18); }
-        .bp-btn-primary { background: linear-gradient(135deg, var(--bp-gold) 0%, #ffb300 100%); color: var(--bp-navy); border: none; font-weight: 800; border-radius: .95rem; box-shadow: 0 10px 24px rgba(242, 195, 0, 0.25); }
-        .bp-btn-secondary { background: #fff; color: var(--bp-navy); border: 1px solid rgba(8, 28, 51, 0.15); font-weight: 700; border-radius: .95rem; }
-        .bp-badge-gold { background: rgba(242, 195, 0, 0.15); color: #7a5700; border: 1px solid rgba(242, 195, 0, 0.24); }
-        .bp-badge-red { background: rgba(192, 57, 43, 0.12); color: #8f2419; border: 1px solid rgba(192, 57, 43, 0.18); }
+        .bp-card { border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 10px 28px rgba(15,23,42,.06); border-radius: 1.35rem; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; }
+        .bp-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px -2px rgba(0,0,0,.10), 0 20px 40px rgba(15,23,42,.09); }
+        .bp-card-header-cadastro { background: linear-gradient(135deg, var(--bp-navy) 0%, #173b6d 100%); color: #fff; border-bottom: none; padding: 1.4rem 1.6rem; }
+        .bp-card-header-reposicao { background: linear-gradient(135deg, #1a4731 0%, #166534 100%); color: #fff; border-bottom: none; padding: 1.4rem 1.6rem; }
+        .bp-card-header-tabela { background: linear-gradient(90deg, rgba(8,28,51,.04), rgba(242,195,0,.08)); border-bottom: 1px solid rgba(8,28,51,.07); }
+        .bp-card-icon { width: 44px; height: 44px; border-radius: .85rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+        .bp-card-icon-cadastro { background: rgba(242,195,0,.18); color: var(--bp-gold); }
+        .bp-card-icon-reposicao { background: rgba(74,222,128,.18); color: #4ade80; }
+        .bp-label { color: #374151; font-weight: 600; font-size: .85rem; margin-bottom: .3rem; letter-spacing: .01em; }
+        .bp-control { border-radius: .75rem; border: 1.5px solid #e2e8f0; padding: .65rem 1rem; background: #fafbfc; transition: border-color .15s, box-shadow .15s, background .15s; font-size: .93rem; }
+        .bp-control:focus { border-color: var(--bp-gold); box-shadow: 0 0 0 3px rgba(242,195,0,.15); background: #fff; outline: none; }
+        .bp-input-group .bp-prefix { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-right: none; border-radius: .75rem 0 0 .75rem; padding: .65rem .9rem; color: var(--bp-muted); font-weight: 700; font-size: .85rem; }
+        .bp-input-group .bp-control { border-radius: 0 .75rem .75rem 0; }
+        .bp-input-group .bp-control:focus ~ .bp-prefix, .bp-input-group .bp-prefix:has(+ .bp-control:focus) { border-color: var(--bp-gold); }
+        .bp-btn-primary { background: linear-gradient(135deg, var(--bp-gold) 0%, #f59e0b 100%); color: var(--bp-navy); border: none; font-weight: 800; border-radius: .85rem; box-shadow: 0 4px 14px rgba(242,195,0,.35); letter-spacing: .02em; transition: filter .15s, box-shadow .15s, transform .12s; }
+        .bp-btn-primary:hover { filter: brightness(1.06); box-shadow: 0 6px 20px rgba(242,195,0,.45); transform: translateY(-1px); color: var(--bp-navy); }
+        .bp-btn-primary:active { transform: translateY(0); }
+        .bp-btn-green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; font-weight: 800; border-radius: .85rem; box-shadow: 0 4px 14px rgba(34,197,94,.3); letter-spacing: .02em; transition: filter .15s, box-shadow .15s, transform .12s; }
+        .bp-btn-green:hover { filter: brightness(1.06); box-shadow: 0 6px 20px rgba(34,197,94,.4); transform: translateY(-1px); color: #fff; }
+        .bp-btn-green:active { transform: translateY(0); }
+        .bp-btn-secondary { background: #fff; color: var(--bp-navy); border: 1.5px solid #e2e8f0; font-weight: 700; border-radius: .85rem; transition: background .15s, border-color .15s; }
+        .bp-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: var(--bp-navy); }
+        .bp-badge-gold { background: rgba(242,195,0,.14); color: #92400e; border: 1px solid rgba(242,195,0,.28); font-size: .78rem; font-weight: 700; }
+        .bp-badge-red { background: rgba(239,68,68,.10); color: #991b1b; border: 1px solid rgba(239,68,68,.20); font-size: .78rem; font-weight: 700; }
+        .bp-badge-green { background: rgba(34,197,94,.10); color: #166534; border: 1px solid rgba(34,197,94,.20); font-size: .78rem; font-weight: 700; }
         .hero { background: linear-gradient(135deg, var(--bp-navy) 0%, var(--bp-navy-2) 55%, #173b6d 100%); color: #fff; box-shadow: 0 18px 50px rgba(8, 28, 51, 0.22); }
+        .bp-form-section-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: rgba(255,255,255,.55); margin-bottom: .15rem; }
+        .bp-form-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.25; }
+        .bp-hint { font-size: .78rem; color: var(--bp-muted); margin-top: .25rem; }
+        table thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--bp-muted); font-weight: 700; border-bottom: 2px solid #f1f5f9 !important; padding-top: 1rem; padding-bottom: 1rem; }
+        table tbody tr { transition: background .12s; }
+        table tbody tr:hover { background: rgba(242,195,0,.04); }
+        table tbody td { border-color: #f1f5f9; padding-top: .85rem; padding-bottom: .85rem; }
         .bp-topbar {
             position: fixed;
             top: 0;
@@ -121,86 +144,30 @@
 
 
     <section class="row g-4">
-        <div class="col-12 col-lg-6">
-            <div class="card bp-card h-100">
-                <div class="card-header px-4 py-3">
-                    <div class="text-uppercase text-secondary small fw-semibold">Novo produto</div>
-                    <h2 class="h5 mb-0 fw-bold" style="color: var(--bp-navy);">Cadastrar no estoque</h2>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ route('produtos.store') }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="nome" class="bp-label">Nome do produto</label>
-                            <input id="nome" name="nome" type="text" value="{{ old('nome') }}" required class="form-control bp-control">
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label for="quantidade" class="bp-label">Quantidade</label>
-                                <input id="quantidade" name="quantidade" type="number" min="0" value="{{ old('quantidade') }}" required class="form-control bp-control">
-                            </div>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="preco_custo" class="bp-label">Preco de custo</label>
-                                <input id="preco_custo" name="preco_custo" type="number" step="0.01" min="0" value="{{ old('preco_custo') }}" required class="form-control bp-control">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label for="preco_unitario" class="bp-label">Preco venda</label>
-                                <input id="preco_unitario" name="preco_unitario" type="number" step="0.01" min="0" value="{{ old('preco_unitario') }}" required class="form-control bp-control">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn bp-btn-primary w-100 mt-3 py-3">Cadastrar produto</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-lg-6">
-            <div class="card bp-card h-100">
-                <div class="card-header px-4 py-3">
-                    <div class="text-uppercase text-secondary small fw-semibold">Reposição rápida</div>
-                    <h2 class="h5 mb-0 fw-bold" style="color: var(--bp-navy);">Aumentar estoque</h2>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ route('estoque.entrada') }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="produto_entrada" class="bp-label">Produto já cadastrado</label>
-                            <select id="produto_entrada" name="produto_id" required class="form-select bp-control">
-                                <option value="">Selecione o produto...</option>
-                                @foreach ($produtos as $produto)
-                                    <option value="{{ $produto->id }}" data-custo="{{ number_format($produto->preco_custo, 2, '.', '') }}" @selected(old('produto_id') == $produto->id)>
-                                        {{ $produto->nome }} — atual {{ $produto->quantidade }} un. / custo R$ {{ number_format($produto->preco_custo, 2, ',', '.') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="quantidade_entrada" class="bp-label">Qtd. a adicionar</label>
-                                <input id="quantidade_entrada" name="quantidade" type="number" min="1" value="{{ old('quantidade') }}" required class="form-control bp-control">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label for="preco_custo_entrada" class="bp-label">Preço de custo</label>
-                                <input id="preco_custo_entrada" name="preco_custo" type="number" step="0.01" min="0" value="{{ old('preco_custo') }}" required class="form-control bp-control">
-                            </div>
-                        </div>
-                        <p class="text-secondary mt-2 mb-0" style="font-size:.82rem;">O custo do produto será recalculado como preço médio ponderado.</p>
-                        <button type="submit" class="btn bp-btn-primary w-100 mt-3 py-3">Somar ao estoque</button>
-                    </form>
-                </div>
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn bp-btn-primary d-flex align-items-center gap-2 px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalCadastrarProduto">
+                    <i class="bi bi-plus-circle-fill fs-5"></i> Novo produto
+                </button>
+                <button type="button" class="btn bp-btn-green d-flex align-items-center gap-2 px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalReposicao">
+                    <i class="bi bi-arrow-repeat fs-5"></i> Repor estoque
+                </button>
             </div>
         </div>
 
         <div class="col-12">
             <div class="card bp-card h-100">
-                <div class="card-header px-4 py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-uppercase text-secondary small fw-semibold">Inventário atual</div>
-                        <h2 class="h5 mb-0 fw-bold" style="color: var(--bp-navy);">Produtos cadastrados</h2>
+                <div class="card-header bp-card-header-tabela px-4 py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bp-card-icon" style="background:rgba(8,28,51,.07);color:var(--bp-navy);">
+                            <i class="bi bi-table"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small fw-bold" style="font-size:.7rem;letter-spacing:.08em;color:var(--bp-muted);">Inventário atual</div>
+                            <h2 class="h5 mb-0 fw-bold" style="color: var(--bp-navy);">Produtos cadastrados</h2>
+                        </div>
                     </div>
-                    <span class="badge bp-badge-gold rounded-pill px-3 py-2">{{ $produtos->count() }} itens</span>
+                    <span class="badge bp-badge-gold rounded-pill px-3 py-2"><i class="bi bi-boxes me-1"></i>{{ $produtos->count() }} itens</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -224,9 +191,9 @@
                                         <td>R$ {{ number_format($produto->preco_unitario, 2, ',', '.') }}</td>
                                         <td class="pe-4 text-end">
                                             @if ($produto->quantidade <= 5)
-                                                <span class="badge bp-badge-red rounded-pill">Baixo estoque</span>
+                                                <span class="badge bp-badge-red rounded-pill"><i class="bi bi-exclamation-triangle-fill me-1"></i>Baixo estoque</span>
                                             @else
-                                                <span class="badge bp-badge-gold rounded-pill">Ok</span>
+                                                <span class="badge bp-badge-green rounded-pill"><i class="bi bi-check-circle-fill me-1"></i>Normal</span>
                                             @endif
                                         </td>
                                         <td class="pe-4 text-end">
@@ -239,7 +206,7 @@
                                                 data-produto-nome="{{ $produto->nome }}"
                                                 data-produto-preco="{{ number_format($produto->preco_unitario, 2, '.', '') }}"
                                             >
-                                                Editar preço
+                                                <i class="bi bi-pencil me-1"></i>Editar preço
                                             </button>
                                         </td>
                                     </tr>
@@ -254,6 +221,120 @@
         </div>
     </section>
 
+</div>
+
+{{-- Modal: Cadastrar Produto --}}
+<div class="modal fade" id="modalCadastrarProduto" tabindex="-1" aria-labelledby="modalCadastrarProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:1.25rem;overflow:hidden;">
+            <div class="modal-header bp-card-header-cadastro d-flex align-items-center gap-3 border-0">
+                <div class="bp-card-icon bp-card-icon-cadastro">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="bp-form-section-title">Novo produto</div>
+                    <h5 class="bp-form-title mb-0" id="modalCadastrarProdutoLabel">Cadastrar no estoque</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="POST" action="{{ route('produtos.store') }}">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="nome" class="bp-label"><i class="bi bi-tag me-1 text-primary opacity-75"></i>Nome do produto</label>
+                        <input id="nome" name="nome" type="text" value="{{ old('nome') }}" required placeholder="Ex: Bateria 60Ah" class="form-control bp-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantidade" class="bp-label"><i class="bi bi-stack me-1 text-primary opacity-75"></i>Quantidade inicial</label>
+                        <div class="input-group bp-input-group">
+                            <span class="bp-prefix"><i class="bi bi-hash"></i></span>
+                            <input id="quantidade" name="quantidade" type="number" min="0" value="{{ old('quantidade') }}" required placeholder="0" class="form-control bp-control">
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-1">
+                        <div class="col-12 col-md-6">
+                            <label for="preco_custo" class="bp-label"><i class="bi bi-arrow-down-circle me-1 text-danger opacity-75"></i>Preço de custo</label>
+                            <div class="input-group bp-input-group">
+                                <span class="bp-prefix">R$</span>
+                                <input id="preco_custo" name="preco_custo" type="number" step="0.01" min="0" value="{{ old('preco_custo') }}" required placeholder="0,00" class="form-control bp-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="preco_unitario" class="bp-label"><i class="bi bi-arrow-up-circle me-1 text-success opacity-75"></i>Preço de venda</label>
+                            <div class="input-group bp-input-group">
+                                <span class="bp-prefix">R$</span>
+                                <input id="preco_unitario" name="preco_unitario" type="number" step="0.01" min="0" value="{{ old('preco_unitario') }}" required placeholder="0,00" class="form-control bp-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bp-hint"><i class="bi bi-info-circle me-1"></i>A margem será calculada automaticamente com base nos preços informados.</div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn bp-btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn bp-btn-primary px-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle-fill"></i> Cadastrar produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal: Reposição de Estoque --}}
+<div class="modal fade" id="modalReposicao" tabindex="-1" aria-labelledby="modalReposicaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:1.25rem;overflow:hidden;">
+            <div class="modal-header bp-card-header-reposicao d-flex align-items-center gap-3 border-0">
+                <div class="bp-card-icon" style="background:rgba(74,222,128,.18);color:#4ade80;">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="bp-form-section-title">Reposição rápida</div>
+                    <h5 class="bp-form-title mb-0" id="modalReposicaoLabel">Aumentar estoque</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="POST" action="{{ route('estoque.entrada') }}">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="produto_entrada" class="bp-label"><i class="bi bi-search me-1 text-primary opacity-75"></i>Produto já cadastrado</label>
+                        <select id="produto_entrada" name="produto_id" required class="form-select bp-control">
+                            <option value="">Selecione o produto...</option>
+                            @foreach ($produtos as $produto)
+                                <option value="{{ $produto->id }}" data-custo="{{ number_format($produto->preco_custo, 2, '.', '') }}" @selected(old('produto_id') == $produto->id)>
+                                    {{ $produto->nome }} — {{ $produto->quantidade }} un. em estoque
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-1">
+                        <div class="col-12 col-md-6">
+                            <label for="quantidade_entrada" class="bp-label"><i class="bi bi-plus-slash-minus me-1 text-primary opacity-75"></i>Qtd. a adicionar</label>
+                            <div class="input-group bp-input-group">
+                                <span class="bp-prefix"><i class="bi bi-hash"></i></span>
+                                <input id="quantidade_entrada" name="quantidade" type="number" min="1" value="{{ old('quantidade') }}" required placeholder="0" class="form-control bp-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="preco_custo_entrada" class="bp-label"><i class="bi bi-receipt me-1 text-primary opacity-75"></i>Preço de custo</label>
+                            <div class="input-group bp-input-group">
+                                <span class="bp-prefix">R$</span>
+                                <input id="preco_custo_entrada" name="preco_custo" type="number" step="0.01" min="0" value="{{ old('preco_custo') }}" required placeholder="0,00" class="form-control bp-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bp-hint"><i class="bi bi-calculator me-1"></i>O custo será recalculado como <strong>preço médio ponderado</strong> entre o estoque atual e a entrada.</div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn bp-btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn bp-btn-green px-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-lg"></i> Somar ao estoque
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="modalEditarPreco" tabindex="-1" aria-labelledby="modalEditarPrecoLabel" aria-hidden="true">
@@ -287,11 +368,12 @@
 (() => {
     const selectProduto = document.getElementById('produto_entrada');
     const inputCusto = document.getElementById('preco_custo_entrada');
-    const custoAnterior = inputCusto.value;
 
     if (!selectProduto || !inputCusto) {
         return;
     }
+
+    const custoAnterior = inputCusto.value;
 
     function aplicarUltimoCusto() {
         const opcaoSelecionada = selectProduto.options[selectProduto.selectedIndex];
@@ -310,6 +392,13 @@
     if (!custoAnterior) {
         aplicarUltimoCusto();
     }
+
+    // Auto-abrir modal ao retornar com erros de validação
+    @if ($errors->has('nome') || $errors->has('quantidade') || $errors->has('preco_custo') || $errors->has('preco_unitario'))
+        new bootstrap.Modal(document.getElementById('modalCadastrarProduto')).show();
+    @elseif ($errors->has('produto_id') || $errors->has('quantidade_entrada'))
+        new bootstrap.Modal(document.getElementById('modalReposicao')).show();
+    @endif
 
     const modal = document.getElementById('modalEditarPreco');
     const formEditarPreco = document.getElementById('formEditarPreco');

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard | Baterias ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -20,67 +21,6 @@
             --muted: #6b7280;
         }
         html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--dark); }
-        body { padding-top: 86px; }
-        
-        /* NAVBAR */
-        .bp-topbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            z-index: 1030;
-            background: #1f2937;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-            box-shadow: 0 12px 26px rgba(2, 6, 23, 0.35);
-        }
-        .bp-nav-wrap { max-width: 1200px; margin: 0 auto; padding: .7rem 1rem; }
-        .bp-nav {
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: .8rem;
-        }
-        .bp-nav-eyebrow { color: #fbbf24; font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-        .bp-nav-title { font-size: 1.15rem; font-weight: 800; line-height: 1.2; margin-top: .18rem; color: #f8fafc; }
-        .bp-nav-subtitle { color: #cbd5e1; margin: .3rem 0 0; font-size: .88rem; }
-        .bp-nav-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
-        .bp-nav-link {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-weight: 600;
-            padding: .2rem .1rem;
-            border-bottom: 2px solid transparent;
-            transition: color .15s ease, border-color .15s ease;
-        }
-        .bp-nav-link:hover {
-            color: #fbbf24;
-            border-bottom-color: #fbbf24;
-        }
-        .bp-nav-link.active {
-            color: #fbbf24;
-            border-bottom-color: #fbbf24;
-        }
-        .bp-nav-logout {
-            background: transparent;
-            border: none;
-            color: #fecaca;
-            font-weight: 600;
-            padding: .2rem .1rem;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-            transition: color .15s ease, border-color .15s ease;
-        }
-        .bp-nav-logout:hover {
-            color: #fca5a5;
-            border-bottom-color: #fca5a5;
-        }
 
         /* CONTAINER */
         .wrapper { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
@@ -394,5 +334,6 @@
 })();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

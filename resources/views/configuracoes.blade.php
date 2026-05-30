@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configurações | Baterias ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --bg: #f3f4f6;
@@ -20,45 +21,7 @@
             font-family: 'Inter', system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
-            padding-top: 86px;
         }
-
-        .bp-topbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            z-index: 1030;
-            background: var(--nav-bg);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-            box-shadow: 0 12px 26px rgba(2, 6, 23, 0.35);
-        }
-        .bp-nav-wrap { max-width: 1200px; margin: 0 auto; padding: .7rem 1rem; }
-        .bp-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem; }
-        .bp-nav-title { font-size: 1.15rem; font-weight: 800; line-height: 1.2; margin: 0; color: #f8fafc; }
-        .bp-nav-subtitle { color: #cbd5e1; margin: .3rem 0 0; font-size: .88rem; }
-        .bp-nav-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
-        .bp-nav-link {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-weight: 600;
-            padding: .2rem .1rem;
-            border-bottom: 2px solid transparent;
-            transition: color .15s ease, border-color .15s ease;
-        }
-        .bp-nav-link:hover { color: #fbbf24; border-bottom-color: #fbbf24; }
-        .bp-nav-link.active { color: #fbbf24; border-bottom-color: #fbbf24; }
-        .bp-nav-logout {
-            background: transparent;
-            border: none;
-            color: #fecaca;
-            font-weight: 600;
-            padding: .2rem .1rem;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-        }
-        .bp-nav-logout:hover { color: #fca5a5; border-bottom-color: #fca5a5; }
 
         .wrapper { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
         .cards {
@@ -305,7 +268,7 @@
                 @method('PUT')
                 <div class="grid-form">
                     <div class="field col-2">
-                        <label for="senha_troca_loja">Nova senha de segurança</label>
+                        <label for="senha_troca_loja">Senha</label>
                         <input id="senha_troca_loja" name="senha_troca_loja" type="password" minlength="6" placeholder="Minimo 6 caracteres">
                     </div>
                     <div class="field col-2">
@@ -327,5 +290,6 @@
         </a>
     </section>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

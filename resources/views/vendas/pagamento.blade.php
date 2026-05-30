@@ -22,6 +22,7 @@
         
         .header { height: 56px; background: var(--dark); display: flex; align-items: center; padding: 0 1.5rem; gap: 1rem; position: sticky; top: 0; z-index: 100; }
         .brand { font-weight: 900; font-size: 1.1rem; color: var(--gold); }
+        .clock { font-size: .85rem; font-weight: 600; color: #e5e7eb; }
         .spacer { flex: 1; }
         
         .container { display: flex; height: calc(100vh - 56px); }
@@ -66,7 +67,7 @@
 <body>
 
 <header class="header">
-    <span class="brand">⚡ Baterias</span>
+    <span class="clock">{{ $tenantEmpresa->nome }} - {{ $tenantLojaAtual->nome }}</span>
     <span class="spacer"></span>
     <a href="{{ route('welcome') }}" style="color: #e5e7eb; text-decoration: none;">← Voltar</a>
 </header>

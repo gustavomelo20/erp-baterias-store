@@ -100,6 +100,33 @@
         .btn-submit { width: 100%; background: linear-gradient(135deg, var(--gold) 0%, #d97706 100%); color: var(--dark); font-family: inherit; font-weight: 900; font-size: 1rem; text-transform: uppercase; letter-spacing: .05em; border: none; border-radius: .6rem; padding: .95rem; cursor: pointer; transition: all .15s; }
         .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,.3); }
         .btn-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+        .btn-calc { width: 100%; background: #374151; color: #e5e7eb; font-family: inherit; font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; border: none; border-radius: .6rem; padding: .65rem; cursor: pointer; transition: background .15s; margin-top: .5rem; }
+        .btn-calc:hover { background: #4b5563; }
+
+        /* MODAL CALCULADORA */
+        .calc-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 1200; align-items: center; justify-content: center; padding: 1rem; }
+        .calc-overlay.open { display: flex; }
+        .calc-box { background: #fff; border-radius: 1rem; padding: 1.5rem; width: 100%; max-width: 360px; box-shadow: 0 18px 45px rgba(15,23,42,.28); }
+        .calc-title { font-size: 1.05rem; font-weight: 900; color: var(--dark); margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+        .calc-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); line-height: 1; }
+        .calc-total-display { background: var(--dark); color: var(--green); border-radius: .6rem; padding: .85rem 1rem; text-align: right; margin-bottom: 1rem; }
+        .calc-total-label { font-size: .65rem; text-transform: uppercase; color: #9ca3af; font-weight: 700; letter-spacing: .05em; margin-bottom: .2rem; }
+        .calc-total-value { font-size: 1.6rem; font-weight: 900; }
+        .calc-row { display: flex; gap: .75rem; align-items: flex-end; margin-bottom: 1rem; }
+        .calc-field { flex: 1; }
+        .calc-field label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; display: block; margin-bottom: .35rem; }
+        .calc-field input { background: var(--bg); border: 1.5px solid var(--border); border-radius: .5rem; font-family: inherit; font-weight: 700; color: var(--dark); padding: .6rem .8rem; outline: none; width: 100%; font-size: 1rem; text-align: center; transition: border-color .15s; }
+        .calc-field input:focus { border-color: var(--gold); }
+        .calc-result { background: #fef3c7; border: 1.5px solid var(--gold); border-radius: .6rem; padding: .75rem 1rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+        .calc-result-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; color: #92400e; }
+        .calc-result-val { font-size: 1.1rem; font-weight: 900; color: var(--dark); }
+        .calc-result-final { font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+        .calc-actions { display: flex; gap: .75rem; }
+        .calc-btn { flex: 1; border: none; border-radius: .5rem; padding: .75rem; font-family: inherit; font-weight: 700; font-size: .85rem; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+        .calc-btn-cancel { background: var(--border); color: var(--dark); }
+        .calc-btn-cancel:hover { background: #d1d5db; }
+        .calc-btn-apply { background: linear-gradient(135deg, var(--gold) 0%, #d97706 100%); color: var(--dark); }
+        .calc-btn-apply:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(245,158,11,.35); }
 
         /* TOAST */
         .toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 999; padding: .8rem 1.2rem; border-radius: .5rem; font-size: .85rem; font-weight: 600; min-width: 280px; }
@@ -116,9 +143,8 @@
 <body>
 
 <header class="header">
-    <span class="brand">Baterias Store</span>
     @if ($tenantEmpresa && $tenantLojaAtual)
-        <span class="clock">{{ $tenantEmpresa->nome }} - {{ $tenantLojaAtual->nome }}</span>
+        <span class="clock" style="color: white">{{ $tenantEmpresa->nome }} - {{ $tenantLojaAtual->nome }}</span>
     @endif
     <span class="spacer"></span>
     @if ($tenantLojas->count() > 1)
@@ -200,7 +226,43 @@
                     <input id="disc" name="desconto" type="number" step="0.01" min="0" value="0" class="input medium" required>
                 </div>
                 <button type="button" class="btn-submit" id="btn" disabled>✓ Próximo</button>
+                <button type="button" class="btn-calc" id="btn-calc">Calcular Desconto</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CALCULADORA DE DESCONTO -->
+<div class="calc-overlay" id="calcOverlay">
+    <div class="calc-box">
+        <div class="calc-title">
+             Calculadora de Desconto
+            <button class="calc-close" id="calcClose">✕</button>
+        </div>
+        <div class="calc-total-display">
+            <div class="calc-total-label">Total do Carrinho</div>
+            <div class="calc-total-value" id="calcTotalDisplay">R$ 0,00</div>
+        </div>
+        <div class="calc-row">
+            <div class="calc-field">
+                <label>Desconto (%)</label>
+                <input type="number" id="calcPct" min="0" max="100" step="0.1" value="" placeholder="ex: 10">
+            </div>
+            <div class="calc-field">
+                <label>Desconto (R$)</label>
+                <input type="number" id="calcVal" min="0" step="0.01" value="" placeholder="ex: 50,00">
+            </div>
+        </div>
+        <div class="calc-result">
+            <div>
+                <div class="calc-result-label">Desconto calculado</div>
+                <div class="calc-result-final" id="calcFinalLine">Total final: —</div>
+            </div>
+            <div class="calc-result-val" id="calcResultVal">R$ 0,00</div>
+        </div>
+        <div class="calc-actions">
+            <button class="calc-btn calc-btn-cancel" id="calcCancel">Fechar</button>
+            <button class="calc-btn calc-btn-apply" id="calcApply">Aplicar Desconto</button>
         </div>
     </div>
 </div>
@@ -299,6 +361,84 @@
             formPendente.submit();
         });
     }
+
+    // === CALCULADORA DE DESCONTO ===
+    (function(){
+        const overlay = document.getElementById('calcOverlay');
+        const btnOpenCalc = document.getElementById('btn-calc');
+        const btnClose = document.getElementById('calcClose');
+        const btnCancel = document.getElementById('calcCancel');
+        const btnApply = document.getElementById('calcApply');
+        const inputPct = document.getElementById('calcPct');
+        const inputVal = document.getElementById('calcVal');
+        const totalDisplay = document.getElementById('calcTotalDisplay');
+        const resultVal = document.getElementById('calcResultVal');
+        const finalLine = document.getElementById('calcFinalLine');
+        const fmtCalc = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+        function getCartTotal() {
+            let total = 0;
+            Array.from(cart.values()).forEach(item => total += item.preco * item.quantidade);
+            const desc = parseFloat(document.getElementById('disc').value) || 0;
+            return Math.max(0, total - desc);
+        }
+
+        function updateCalc() {
+            const cartTotal = getCartTotal();
+            totalDisplay.textContent = fmtCalc(cartTotal);
+            const pct = parseFloat(inputPct.value);
+            const val = parseFloat(inputVal.value);
+            let desconto = 0;
+            if (!isNaN(pct) && inputPct.value !== '') {
+                desconto = cartTotal * (pct / 100);
+            } else if (!isNaN(val) && inputVal.value !== '') {
+                desconto = val;
+            }
+            desconto = Math.min(desconto, cartTotal);
+            const final = cartTotal - desconto;
+            resultVal.textContent = fmtCalc(desconto);
+            finalLine.textContent = 'Total final: ' + fmtCalc(final);
+        }
+
+        inputPct.addEventListener('input', function() {
+            if (this.value !== '') inputVal.value = '';
+            updateCalc();
+        });
+        inputVal.addEventListener('input', function() {
+            if (this.value !== '') inputPct.value = '';
+            updateCalc();
+        });
+
+        function openCalc() {
+            inputPct.value = '';
+            inputVal.value = '';
+            updateCalc();
+            overlay.classList.add('open');
+            inputPct.focus();
+        }
+        function closeCalc() { overlay.classList.remove('open'); }
+
+        btnOpenCalc.addEventListener('click', openCalc);
+        btnClose.addEventListener('click', closeCalc);
+        btnCancel.addEventListener('click', closeCalc);
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeCalc(); });
+
+        btnApply.addEventListener('click', function() {
+            const cartTotal = getCartTotal();
+            const pct = parseFloat(inputPct.value);
+            const val = parseFloat(inputVal.value);
+            let desconto = 0;
+            if (!isNaN(pct) && inputPct.value !== '') {
+                desconto = cartTotal * (pct / 100);
+            } else if (!isNaN(val) && inputVal.value !== '') {
+                desconto = val;
+            }
+            desconto = Math.min(Math.max(0, desconto), cartTotal);
+            document.getElementById('disc').value = desconto.toFixed(2);
+            closeCalc();
+        });
+    })();
+    // === FIM CALCULADORA ===
 
     const clock=document.getElementById('clock');
     function tick(){const d=new Date();clock.textContent=d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR');}
@@ -434,7 +574,11 @@
         form.appendChild(descontoInput);
         
         document.body.appendChild(form);
-        form.submit();
+        if (document.fullscreenElement) {
+            document.exitFullscreen().then(() => form.submit()).catch(() => form.submit());
+        } else {
+            form.submit();
+        }
     });
     
     qty.addEventListener('input',updateAddButton);

@@ -31,4 +31,5 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::post('/vendas/checkout', [EstoqueVendaController::class, 'checkoutVenda'])->name('vendas.checkout');
     Route::get('/vendas/pagamento', [EstoqueVendaController::class, 'showPagamento'])->name('vendas.pagamento');
     Route::post('/vendas/confirmar', [EstoqueVendaController::class, 'confirmarVenda'])->name('vendas.confirmar');
+    Route::get('/vendas/recibo', [EstoqueVendaController::class, 'showRecibo'])->name('vendas.recibo');
 });
