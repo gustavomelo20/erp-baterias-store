@@ -9,10 +9,11 @@ use Illuminate\Support\Collection;
 class ConfirmarVendaService
 {
     private const FORMAS_PAGAMENTO = [
-        'dinheiro' => 'Dinheiro',
-        'credito'  => 'Cartão Crédito',
-        'debito'   => 'Cartão Débito',
-        'pix'      => 'PIX',
+        'dinheiro'  => 'Dinheiro',
+        'credito'   => 'Cartão Crédito',
+        'debito'    => 'Cartão Débito',
+        'pix'       => 'PIX',
+        'orcamento' => 'Orçamento',
     ];
 
     public function __construct(

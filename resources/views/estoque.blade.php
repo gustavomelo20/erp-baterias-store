@@ -141,6 +141,76 @@
         </div>
     @endif
 
+    @if (session('xml_resultado'))
+        @php $res = session('xml_resultado'); @endphp
+        <div class="card border-0 rounded-4 shadow-sm mb-2" style="overflow:hidden;">
+            <div class="card-header d-flex align-items-center gap-2 border-0" style="background:linear-gradient(135deg,#064e3b 0%,#065f46 100%);color:#fff;padding:1rem 1.4rem;">
+                <i class="bi bi-file-earmark-check-fill fs-5"></i>
+                <div class="flex-grow-1">
+                    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.65;">Resultado da importação NF-e</div>
+                    <div class="fw-bold" style="font-size:.98rem;">
+                        NF {{ $res['nfe']['numero'] }} · Série {{ $res['nfe']['serie'] }}
+                        @if($res['fornecedor']) · <span style="opacity:.8;">{{ $res['fornecedor']['nome'] }}</span> @endif
+                    </div>
+                </div>
+                <span class="badge rounded-pill px-3" style="background:rgba(74,222,128,.18);color:#4ade80;font-size:.8rem;">
+                    {{ count($res['importados']) }} importado(s)
+                </span>
+                @if(count($res['nao_mapeados']) > 0)
+                    <span class="badge rounded-pill px-3" style="background:rgba(251,191,36,.18);color:#fbbf24;font-size:.8rem;">
+                        {{ count($res['nao_mapeados']) }} sem mapeamento
+                    </span>
+                @endif
+            </div>
+            @if(count($res['importados']) > 0)
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle" style="font-size:.88rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">SKU Fornecedor</th>
+                                <th>Descrição</th>
+                                <th>Produto no Sistema</th>
+                                <th>Qtd.</th>
+                                <th>Custo Unit.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($res['importados'] as $item)
+                                <tr>
+                                    <td class="ps-4"><span class="badge rounded-pill px-2" style="background:rgba(34,197,94,.1);color:#166534;font-family:monospace;font-size:.8rem;">{{ $item['sku'] }}</span></td>
+                                    <td>{{ $item['nome'] }}</td>
+                                    <td class="fw-semibold">{{ $item['produto'] }}</td>
+                                    <td>{{ number_format($item['quantidade'], 0, ',', '.') }}</td>
+                                    <td>R$ {{ number_format($item['custo'], 2, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+            @if(count($res['nao_mapeados']) > 0)
+            <div class="card-footer border-0 p-3" style="background:#fffbeb;">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-exclamation-triangle-fill text-warning mt-1"></i>
+                    <div>
+                        <div class="fw-bold text-warning-emphasis mb-1" style="font-size:.85rem;">SKUs sem mapeamento — configure o De-Para para importar estes itens:</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach ($res['nao_mapeados'] as $nm)
+                                <span class="badge rounded-pill px-3" style="background:rgba(251,191,36,.15);color:#92400e;border:1px solid rgba(251,191,36,.3);font-family:monospace;">{{ $nm['sku'] }}</span>
+                            @endforeach
+                        </div>
+                        <a href="{{ route('sku-depara.index') }}" class="btn btn-sm mt-2" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:.65rem;font-weight:700;">
+                            <i class="bi bi-arrow-left-right me-1"></i>Configurar SKU De-Para
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+    @endif
+
 
 
     <section class="row g-4">
@@ -152,6 +222,13 @@
                 <button type="button" class="btn bp-btn-green d-flex align-items-center gap-2 px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalReposicao">
                     <i class="bi bi-arrow-repeat fs-5"></i> Repor estoque
                 </button>
+                <button type="button" class="btn d-flex align-items-center gap-2 px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalImportarXml"
+                    style="background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);color:#fff;border:none;font-weight:800;border-radius:.85rem;box-shadow:0 4px 14px rgba(2,132,199,.3);letter-spacing:.02em;">
+                    <i class="bi bi-filetype-xml fs-5"></i> Importar NF-e XML
+                </button>
+                <a href="{{ route('sku-depara.index') }}" class="btn bp-btn-secondary d-flex align-items-center gap-2 px-4 py-2">
+                    <i class="bi bi-arrow-left-right fs-5"></i> SKU De-Para
+                </a>
             </div>
         </div>
 
@@ -175,6 +252,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-4">Produto</th>
+                                    <th>SKU</th>
                                     <th>Qtd.</th>
                                     <th>Custo</th>
                                     <th>Venda</th>
@@ -186,6 +264,13 @@
                                 @forelse ($produtos as $produto)
                                     <tr>
                                         <td class="ps-4 fw-semibold">{{ $produto->nome }}</td>
+                                        <td>
+                                            @if($produto->sku)
+                                                <span class="badge rounded-pill px-2" style="background:rgba(8,28,51,.07);color:var(--bp-navy);font-family:monospace;font-size:.8rem;">{{ $produto->sku }}</span>
+                                            @else
+                                                <span class="text-muted" style="font-size:.82rem;">—</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $produto->quantidade }}</td>
                                         <td>R$ {{ number_format($produto->preco_custo, 2, ',', '.') }}</td>
                                         <td>R$ {{ number_format($produto->preco_unitario, 2, ',', '.') }}</td>
@@ -211,7 +296,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="6" class="text-center text-muted py-4">Nenhum produto cadastrado.</td></tr>
+                                    <tr><td colspan="7" class="text-center text-muted py-4">Nenhum produto cadastrado.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -243,6 +328,10 @@
                     <div class="mb-3">
                         <label for="nome" class="bp-label"><i class="bi bi-tag me-1 text-primary opacity-75"></i>Nome do produto</label>
                         <input id="nome" name="nome" type="text" value="{{ old('nome') }}" required placeholder="Ex: Bateria 60Ah" class="form-control bp-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sku" class="bp-label"><i class="bi bi-upc me-1 text-primary opacity-75"></i>SKU interno <span class="text-muted fw-normal">(opcional)</span></label>
+                        <input id="sku" name="sku" type="text" value="{{ old('sku') }}" placeholder="Ex: BAT-60AH-001" class="form-control bp-control" maxlength="100" style="font-family:monospace;">
                     </div>
                     <div class="mb-3">
                         <label for="quantidade" class="bp-label"><i class="bi bi-stack me-1 text-primary opacity-75"></i>Quantidade inicial</label>
@@ -363,6 +452,51 @@
     </div>
 </div>
 
+{{-- Modal: Importar NF-e XML --}}
+<div class="modal fade" id="modalImportarXml" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:1.25rem;overflow:hidden;">
+            <div class="modal-header border-0 d-flex align-items-center gap-3" style="background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);">
+                <div style="width:44px;height:44px;border-radius:.85rem;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15);color:#fff;font-size:1.25rem;">
+                    <i class="bi bi-filetype-xml"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:rgba(255,255,255,.55);">Ingestão de NF-e</div>
+                    <h5 class="mb-0" style="font-size:1.1rem;font-weight:800;color:#fff;">Importar XML da Nota Fiscal</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ route('estoque.importar-xml') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="xml_nfe" class="bp-label"><i class="bi bi-upload me-1 text-primary opacity-75"></i>Arquivo XML da NF-e</label>
+                        <input id="xml_nfe" name="xml_nfe" type="file" accept=".xml" required class="form-control bp-control">
+                        <div class="form-text text-muted mt-1" style="font-size:.78rem;">
+                            <i class="bi bi-info-circle me-1"></i>Formato <code>nfeProc</code> versão 4.00. Máx. 5 MB.
+                        </div>
+                    </div>
+                    <div class="alert border-0 rounded-3 mb-0 d-flex gap-2 align-items-start" style="background:rgba(2,132,199,.07);font-size:.85rem;">
+                        <i class="bi bi-lightbulb-fill text-info mt-1"></i>
+                        <div>
+                            O sistema usará o <strong>CNPJ do emitente</strong> para identificar o fornecedor e
+                            o <strong>cProd</strong> de cada item para localizar o produto via tabela
+                            <a href="{{ route('sku-depara.index') }}" target="_blank" class="fw-bold">SKU De-Para</a>.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn bp-btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn px-4 d-flex align-items-center gap-2"
+                        style="background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);color:#fff;border:none;font-weight:800;border-radius:.85rem;">
+                        <i class="bi bi-cloud-upload-fill"></i> Processar XML
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
 (() => {
@@ -398,6 +532,8 @@
         new bootstrap.Modal(document.getElementById('modalCadastrarProduto')).show();
     @elseif ($errors->has('produto_id') || $errors->has('quantidade_entrada'))
         new bootstrap.Modal(document.getElementById('modalReposicao')).show();
+    @elseif ($errors->has('xml_nfe'))
+        new bootstrap.Modal(document.getElementById('modalImportarXml')).show();
     @endif
 
     const modal = document.getElementById('modalEditarPreco');

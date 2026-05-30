@@ -43,5 +43,6 @@ class DatabaseSeeder extends Seeder
         $user->lojas()->syncWithoutDetaching([$loja->id]);
 
         $this->call(ProdutoSeeder::class);
+        $this->call(SkuDeParaSeeder::class);
     }
 }

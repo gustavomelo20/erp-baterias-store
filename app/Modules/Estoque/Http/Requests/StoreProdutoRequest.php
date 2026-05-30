@@ -27,6 +27,15 @@ class StoreProdutoRequest extends FormRequest
                     ->where('loja_id', $lojaId)
                 ),
             ],
+            'sku' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('produtos', 'sku')->where(fn ($q) => $q
+                    ->where('empresa_id', $empresaId)
+                    ->where('loja_id', $lojaId)
+                ),
+            ],
             'quantidade'      => ['required', 'integer', 'min:0'],
             'preco_custo'     => ['required', 'numeric', 'min:0'],
             'preco_unitario'  => ['required', 'numeric', 'min:0'],

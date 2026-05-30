@@ -7,10 +7,11 @@ use App\Models\Produto;
 class ShowPagamentoService
 {
     private const FORMAS_PAGAMENTO = [
-        'dinheiro' => 'Dinheiro',
-        'credito'  => 'Cartão Crédito',
-        'debito'   => 'Cartão Débito',
-        'pix'      => 'PIX',
+        'dinheiro'  => 'Dinheiro',
+        'credito'   => 'Cartão Crédito',
+        'debito'    => 'Cartão Débito',
+        'pix'       => 'PIX',
+        'orcamento' => 'Orçamento',
     ];
 
     public function obterDados(array $items, float $desconto, int $empresaId, int $lojaId): ?array

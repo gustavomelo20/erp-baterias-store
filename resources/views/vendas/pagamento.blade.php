@@ -52,6 +52,10 @@
         .radio-item { display: flex; align-items: center; gap: .75rem; }
         .radio-item input[type="radio"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--gold); }
         .radio-item label { flex: 1; cursor: pointer; font-weight: 500; }
+        .radio-item.orcamento-item label { color: #7c3aed; font-weight: 700; }
+        .radio-item.orcamento-item input { accent-color: #7c3aed; }
+        
+        #campo-nome-cliente { display: none; margin-top: 1rem; }
         
         .input { background: var(--bg); border: 1.5px solid var(--border); border-radius: .5rem; font-family: inherit; font-weight: 500; color: var(--dark); padding: .65rem .9rem; outline: none; width: 100%; transition: border-color .15s; }
         .input:focus { border-color: var(--gold); }
@@ -107,11 +111,21 @@
                     <label class="label">Escolha a forma de pagamento</label>
                     <div class="radio-group">
                         @foreach ($formasPagamento as $key => $label)
-                            <div class="radio-item">
+                            <div class="radio-item {{ $key === 'orcamento' ? 'orcamento-item' : '' }}">
                                 <input type="radio" id="pag_{{ $key }}" name="forma_pagamento" value="{{ $key }}" required>
-                                <label for="pag_{{ $key }}">{{ $label }}</label>
+                                <label for="pag_{{ $key }}">
+                                    {{ $label }}
+                                    @if ($key === 'orcamento')
+                                        <span style="font-size:.75rem; background:#ede9fe; color:#7c3aed; padding:.15rem .5rem; border-radius:.25rem; margin-left:.5rem; font-weight:700;">PDF</span>
+                                    @endif
+                                </label>
                             </div>
                         @endforeach
+                    </div>
+
+                    <div id="campo-nome-cliente">
+                        <label class="label" for="nome_cliente" style="color:#7c3aed;">Nome do Cliente (opcional)</label>
+                        <input type="text" id="nome_cliente" name="nome_cliente" class="input" placeholder="Ex: João da Silva" maxlength="100" style="border-color:#c4b5fd;">
                     </div>
                 </div>
 
@@ -129,5 +143,13 @@
     </div>
 </div>
 
+<script>
+    document.querySelectorAll('input[name="forma_pagamento"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            var campo = document.getElementById('campo-nome-cliente');
+            campo.style.display = this.value === 'orcamento' ? 'block' : 'none';
+        });
+    });
+</script>
 </body>
 </html>

@@ -11,6 +11,7 @@ class CriarProdutoService
     {
         return Produto::query()->create([
             'nome'            => $dto->nome,
+            'sku'             => $dto->sku,
             'quantidade'      => $dto->quantidade,
             'preco_custo'     => $dto->precoCusto,
             'preco_unitario'  => $dto->precoUnitario,

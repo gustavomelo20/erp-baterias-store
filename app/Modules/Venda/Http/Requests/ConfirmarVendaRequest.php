@@ -14,7 +14,8 @@ class ConfirmarVendaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'forma_pagamento' => ['required', 'in:dinheiro,credito,debito,pix'],
+            'forma_pagamento' => ['required', 'in:dinheiro,credito,debito,pix,orcamento'],
+            'nome_cliente'    => ['nullable', 'string', 'max:100'],
             'email_cliente'   => ['nullable', 'email'],
         ];
     }

@@ -3,6 +3,8 @@
 namespace App\Modules\Venda\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
+use App\Models\Loja;
 use App\Modules\Venda\DTOs\CheckoutVendaDTO;
 use App\Modules\Venda\DTOs\ConfirmarVendaDTO;
 use App\Modules\Venda\DTOs\StoreVendaDTO;
@@ -86,6 +88,32 @@ class VendaController extends Controller
 
         $validated = $request->validated();
 
+        // Orçamento: gera PDF sem salvar venda no banco
+        if ($validated['forma_pagamento'] === 'orcamento') {
+            $empresa = Empresa::find($empresaId);
+            $loja    = Loja::find($lojaId);
+
+            $request->session()->put('orcamento_dados', [
+                'items'        => $items,
+                'desconto'     => $desconto,
+                'nome_cliente' => $validated['nome_cliente'] ?? null,
+                'empresa'      => [
+                    'nome'         => $empresa?->nome_fantasia ?: $empresa?->nome,
+                    'cnpj'         => $empresa?->cnpj,
+                    'telefone'     => $empresa?->telefone,
+                    'email'        => $empresa?->email_fiscal,
+                    'logradouro'   => $empresa?->logradouro,
+                    'numero'       => $empresa?->numero,
+                    'bairro'       => $empresa?->bairro,
+                    'cidade'       => $empresa?->cidade,
+                    'uf'           => $empresa?->uf,
+                ],
+                'loja_nome'    => $loja?->nome,
+            ]);
+
+            return redirect()->route('vendas.orcamento');
+        }
+
         $dto = new ConfirmarVendaDTO(
             formaPagamento: $validated['forma_pagamento'],
             emailCliente:   $validated['email_cliente'] ?? null,
@@ -101,6 +129,74 @@ class VendaController extends Controller
         $request->session()->put('recibo_venda', $recibo);
 
         return redirect()->route('vendas.recibo');
+    }
+
+    public function showOrcamento(Request $request): RedirectResponse|View
+    {
+        [$empresaId, $lojaId] = $this->tenantIds($request);
+
+        $dados = session('orcamento_dados');
+
+        if (empty($dados)) {
+            return redirect()->route('welcome');
+        }
+
+        $request->session()->forget('orcamento_dados');
+        $request->session()->forget(['checkout_items', 'checkout_desconto']);
+
+        $items    = collect($dados['items'])->groupBy('produto_id');
+        $empresa  = Empresa::find($empresaId);
+        $loja     = Loja::find($lojaId);
+
+        $produtosMap = \App\Models\Produto::query()
+            ->where('empresa_id', $empresaId)
+            ->where('loja_id', $lojaId)
+            ->whereIn('id', collect($dados['items'])->pluck('produto_id')->map(fn ($id) => (int) $id)->all())
+            ->get()
+            ->keyBy('id');
+
+        $itens = $items->map(function ($grupo, $produtoId) use ($produtosMap): ?array {
+            $produto = $produtosMap->get((int) $produtoId);
+            if (!$produto) {
+                return null;
+            }
+            $quantidade    = (int) collect($grupo)->sum('quantidade');
+            $precoUnitario = (float) $produto->preco_unitario;
+
+            return [
+                'nome'           => $produto->nome,
+                'quantidade'     => $quantidade,
+                'preco_unitario' => $precoUnitario,
+                'subtotal'       => round($precoUnitario * $quantidade, 2),
+            ];
+        })->filter()->values()->toArray();
+
+        $subtotal = round(collect($itens)->sum('subtotal'), 2);
+        $desconto = round((float) $dados['desconto'], 2);
+        $total    = round(max($subtotal - $desconto, 0), 2);
+
+        return view('vendas.orcamento', [
+            'numero'       => strtoupper(substr(uniqid(), -8)),
+            'data_emissao' => now()->format('d/m/Y'),
+            'validade'     => now()->addDays(7)->format('d/m/Y'),
+            'itens'        => $itens,
+            'subtotal'     => $subtotal,
+            'desconto'     => $desconto,
+            'total'        => $total,
+            'nome_cliente' => $dados['nome_cliente'] ?? null,
+            'empresa'      => [
+                'nome'       => $empresa?->nome_fantasia ?: ($empresa?->nome ?? 'Baterias'),
+                'cnpj'       => $empresa?->cnpj,
+                'telefone'   => $empresa?->telefone,
+                'email'      => $empresa?->email_fiscal,
+                'logradouro' => $empresa?->logradouro,
+                'numero'     => $empresa?->numero,
+                'bairro'     => $empresa?->bairro,
+                'cidade'     => $empresa?->cidade,
+                'uf'         => $empresa?->uf,
+            ],
+            'loja_nome'    => $loja?->nome,
+        ]);
     }
 
     public function showRecibo(Request $request): RedirectResponse|View

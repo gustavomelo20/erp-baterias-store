@@ -9,6 +9,8 @@
         ['route' => 'welcome', 'key' => 'pdv', 'label' => 'Abrir PDV'],
         ['route' => 'painel.index', 'key' => 'painel', 'label' => 'Painel'],
         ['route' => 'estoque.index', 'key' => 'estoque', 'label' => 'Estoque'],
+        ['route' => 'fornecedores.index', 'key' => 'fornecedores', 'label' => 'Fornecedores'],
+        ['route' => 'sku-depara.index', 'key' => 'sku-depara', 'label' => 'SKU De-Para'],
         ['route' => 'configuracoes.index', 'key' => 'configuracoes', 'label' => 'Configurações'],
     ];
 @endphp
